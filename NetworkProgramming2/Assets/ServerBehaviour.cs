@@ -472,6 +472,7 @@ public class ServerBehaviour : MonoBehaviour
             endMsg.winnerName = _winnerName;
             endMsg.wins = response.wins;
             endMsg.loses = response.loses;
+            endMsg.totalGames = response.totalGames;
             SendUnicast(con, endMsg);
         }
     }
@@ -683,4 +684,5 @@ public class WinLoseResponse
 {
     public int wins;
     public int loses;
+    public int totalGames;
 }

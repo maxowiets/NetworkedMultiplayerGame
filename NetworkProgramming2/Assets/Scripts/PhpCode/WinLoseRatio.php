@@ -10,7 +10,9 @@ if (isset($_POST['session_id']) && isset($_POST['game_id']) && isset($_POST['pla
         $row1 = $result1->fetch_row();
         $result2 = $mysqli->query("SELECT loser_id, COUNT(*) as c FROM played_games WHERE game_id = '{$game_id}' AND loser_id = '{$player_id}'");
         $row2 = $result2->fetch_row();
-        $winLoseResponse = new CreateWinLoseRatio($row1[1], $row2[1]);
+        $result3 = $mysqli->query("SELECT COUNT(*) as c FROM played_games WHERE game_id = '{$game_id}' AND date >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)");
+        $row3 = $result3->fetch_row();
+        $winLoseResponse = new CreateWinLoseRatio($row1[1], $row2[1], $row3[0]);
         echo json_encode($winLoseResponse);
     } else {
         echo "Session doesn't exist";
@@ -23,12 +25,13 @@ if (isset($_POST['session_id']) && isset($_POST['game_id']) && isset($_POST['pla
 class CreateWinLoseRatio
 {
     public $wins;
-    // .
     public $loses;
-    function __construct($wins, $loses)
+    public $totalGames;
+    function __construct($wins, $loses, $totalGames)
     {
         $this->wins = $wins;
         $this->loses = $loses;
+        $this->totalGames = $totalGames;
     }
 }
 ?>

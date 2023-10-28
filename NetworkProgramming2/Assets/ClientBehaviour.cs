@@ -46,6 +46,7 @@ public class ClientBehaviour : MonoBehaviour
 
     public TextMeshProUGUI winnerText;
     public TextMeshProUGUI winLoseRate;
+    public TextMeshProUGUI totalGamesPlayed;
 
     // Start is called before the first frame update
     void Start()
@@ -285,6 +286,7 @@ public class ClientBehaviour : MonoBehaviour
         }
         client.winnerText.gameObject.SetActive(false);
         client.winLoseRate.gameObject.SetActive(false);
+        client.totalGamesPlayed.gameObject.SetActive(false);
         client.readyButton.SetActive(false);
         client.unreadyButton.SetActive(false);
         client.disconnectButton.SetActive(false);
@@ -321,6 +323,8 @@ public class ClientBehaviour : MonoBehaviour
         client.winnerText.text = endGameMessage.winnerName + " has won!";
         client.winLoseRate.gameObject.SetActive(true);
         client.winLoseRate.text = "W/L " + endGameMessage.wins + "/" + endGameMessage.loses;
+        client.totalGamesPlayed.gameObject.SetActive(true);
+        client.totalGamesPlayed.text = "Total games played: " + endGameMessage.totalGames.ToString();
 
         client.readyButton.SetActive(true);
         client.unreadyButton.SetActive(false);

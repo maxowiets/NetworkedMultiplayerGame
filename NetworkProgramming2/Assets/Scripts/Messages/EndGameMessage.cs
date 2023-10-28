@@ -16,6 +16,7 @@ public class EndGameMessage : BaseMessage
     public string winnerName;
     public int wins;
     public int loses;
+    public int totalGames;
 
     public override void SerializeObject(ref DataStreamWriter writer)
     {
@@ -23,6 +24,7 @@ public class EndGameMessage : BaseMessage
         writer.WriteFixedString32(winnerName);
         writer.WriteInt(wins);
         writer.WriteInt(loses);
+        writer.WriteInt(totalGames);
     }
 
     public override void DeserializeObject(ref DataStreamReader reader)
@@ -31,5 +33,6 @@ public class EndGameMessage : BaseMessage
         winnerName = reader.ReadFixedString32().ToString();
         wins = reader.ReadInt();
         loses = reader.ReadInt();
+        totalGames = reader.ReadInt();
     }
 }
