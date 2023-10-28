@@ -1,17 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Mail;
 using Unity.Collections;
 using Unity.Networking.Transport;
 using UnityEngine;
 using UnityEngine.Networking;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 public delegate void ServerMessageHandler(ServerBehaviour server, NetworkConnection con, BaseMessage header);
 
 public class ServerBehaviour : MonoBehaviour
 {
     static Dictionary<NetworkMessageType, ServerMessageHandler> networkMessageHandlers = new Dictionary<NetworkMessageType, ServerMessageHandler> {
+                { NetworkMessageType.REGISTER,      HandleClientRegister },
                 { NetworkMessageType.HANDSHAKE,     HandleClientHandshake },
                 { NetworkMessageType.PLAYER_READY,  HandlePlayerReady },
                 { NetworkMessageType.RPC_CLIENT,    HandleClientRPCMessage },
@@ -151,6 +152,12 @@ public class ServerBehaviour : MonoBehaviour
                 }
             }
         }
+    }
+
+    static void HandleClientRegister(ServerBehaviour server, NetworkConnection con, BaseMessage header)
+    {
+        RegisterMessage message = header as RegisterMessage;
+        server.StartCoroutine(server.RegisterPlayer(message.emailAddress, message.username, message.password, message.confirmPassword, con));
     }
 
     static void HandleClientHandshake(ServerBehaviour server, NetworkConnection con, BaseMessage header)
@@ -489,6 +496,45 @@ public class ServerBehaviour : MonoBehaviour
         else
         {
             Debug.Log("GAME ADDED TO DATABASE");
+        }
+    }
+
+    IEnumerator RegisterPlayer(string emailAddress, string username, string password, string confirmPassword, NetworkConnection con)
+    {
+        WWWForm form = new WWWForm();
+        form.AddField("session_id", sessionID);
+        form.AddField("email", emailAddress);
+        form.AddField("username", username);
+        form.AddField("password", password);
+        form.AddField("confirmPassword", confirmPassword);
+
+        using (UnityWebRequest www = UnityWebRequest.Post("https://studenthome.hku.nl/~maxym.ebeling/Register.php", form))
+        {
+            yield return www.SendWebRequest();
+
+            if (www.result != UnityWebRequest.Result.Success)
+            {
+                Debug.Log(www.error);
+            }
+            else
+            {
+                string responseText = www.downloadHandler.text;
+                Debug.Log(responseText);
+                if (responseText.StartsWith("\"Success\""))
+                {
+                    Debug.Log("Account Registered");
+                    //loginScreen.error.text = "Registration Complete";
+                    //BackToLoginScreen();
+                    RegisterResponseMessage responseMsg = new RegisterResponseMessage();
+                    responseMsg.username = username;
+                    responseMsg.password = password;
+                    SendUnicast(con, responseMsg);
+                }
+                else
+                {
+                    //error.text = responseText;
+                }
+            }
         }
     }
 

@@ -6,7 +6,6 @@ public enum NetworkSpawnObject
 {
 	PLAYER = 0,
 	BULLET = 1,
-	MANAGER = 2,
 }
 
 [CreateAssetMenu(menuName = "My Assets/NetworkSpawnInfo")]

@@ -13,6 +13,7 @@ public delegate void ClientMessageHandler(ClientBehaviour client, BaseMessage he
 public class ClientBehaviour : MonoBehaviour
 {
     static Dictionary<NetworkMessageType, ClientMessageHandler> networkMessageHandlers = new Dictionary<NetworkMessageType, ClientMessageHandler> {
+            { NetworkMessageType.REGISTER_RESPONSE,         HandleServerRegisterResponseMessage },
             { NetworkMessageType.HANDSHAKE_RESPONSE,        HandleServerHandshakeResponseMessage },
             { NetworkMessageType.NETWORK_SPAWN,             HandleNetworkSpawnMessage },               // uint networkId, uint objectType
             { NetworkMessageType.PLAYER_READY_RESPONSE,     HandlePlayerReadyResponseMessage },
@@ -177,6 +178,22 @@ public class ClientBehaviour : MonoBehaviour
         header.username = _username;
         header.password = _password;
         SendPackedMessage(header);
+    }
+
+    public void Register(string _emailAddress, string _username, string _password, string _confirmPassword)
+    {
+        var header = new RegisterMessage();
+        header.emailAddress = _emailAddress;
+        header.username = _username;
+        header.password = _password;
+        header.confirmPassword = _confirmPassword;
+        SendPackedMessage(header);
+    }
+
+    static void HandleServerRegisterResponseMessage(ClientBehaviour client, BaseMessage header)
+    {
+        RegisterResponseMessage response = header as RegisterResponseMessage;
+        client.logInScreen.signUpScreen.BackToLoginScreen();
     }
 
     static void HandleServerHandshakeResponseMessage(ClientBehaviour client, BaseMessage header)

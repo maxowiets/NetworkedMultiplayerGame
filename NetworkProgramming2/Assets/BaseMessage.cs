@@ -25,6 +25,8 @@ public abstract class BaseMessage
 public static class NetworkMessageInfo
 {
     public static Dictionary<NetworkMessageType, System.Type> TypeMap = new Dictionary<NetworkMessageType, System.Type> {
+            { NetworkMessageType.REGISTER,                  typeof(RegisterMessage) },
+            { NetworkMessageType.REGISTER_RESPONSE,         typeof(HandshakeMessage) },
             { NetworkMessageType.HANDSHAKE,                 typeof(HandshakeMessage) },
             { NetworkMessageType.HANDSHAKE_RESPONSE,        typeof(HandshakeResponseMessage) },            
             { NetworkMessageType.PLAYER_READY,              typeof(PlayerReadyMessage) },
@@ -43,6 +45,8 @@ public static class NetworkMessageInfo
 
 public enum NetworkMessageType
 {
+    REGISTER,
+    REGISTER_RESPONSE,
     HANDSHAKE,
     HANDSHAKE_RESPONSE,
     //CHAT_MESSAGE,

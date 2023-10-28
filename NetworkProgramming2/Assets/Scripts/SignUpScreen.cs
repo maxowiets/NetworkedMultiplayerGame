@@ -22,7 +22,8 @@ public class SignUpScreen : MonoBehaviour
 
     public void SignUp()
     {
-        StartCoroutine(SignUpEnumerator());
+        loginScreen.client.Register(emailAddress.text, username.text, password.text, confirmPassword.text);
+        //StartCoroutine(SignUpEnumerator());
     }
 
     public void BackToLoginScreen()

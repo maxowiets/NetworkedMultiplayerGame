@@ -1,53 +1,58 @@
 <?php
 require "Connection.php";
-if (isset($_POST['username']) && isset($_POST['password'])) {
-    $errors = array();
+if (isset($_POST['session_id']) && isset($_POST['username']) && isset($_POST['password'])) {
+    session_id($_POST['session_id']);
+    session_start();
+    if ($_SESSION['server_id'] != NULL && $_SESSION['server_id'] != "" && $_SESSION['server_id'] != 0) {
+        $errors = array();
 
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-    if ($stmt = $mysqli->prepare("SELECT id, password FROM players WHERE username = ?")) {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+        if ($stmt = $mysqli->prepare("SELECT id, password FROM players WHERE username = ?")) {
+            /* bind parameters for markers */
+            $stmt->bind_param('s', $username);
 
+            /* execute query */
+            if ($stmt->execute()) {
 
-        /* bind parameters for markers */
-        $stmt->bind_param('s', $username);
+                /* store result */
+                $stmt->store_result();
 
-        /* execute query */
-        if ($stmt->execute()) {
+                if ($stmt->num_rows > 0) {
+                    /* bind result variables */
+                    $stmt->bind_result($id_tmp, $password_hash);
 
-            /* store result */
-            $stmt->store_result();
+                    /* fetch value */
+                    $stmt->fetch();
 
-            if ($stmt->num_rows > 0) {
-                /* bind result variables */
-                $stmt->bind_result($id_tmp, $password_hash);
+                    if (password_verify($password, $password_hash)) {
+                        echo "Success" . "|" . $id_tmp;
 
-                /* fetch value */
-                $stmt->fetch();
-
-                if (password_verify($password, $password_hash)) {
-                    echo "Success" . "|" . $id_tmp;
-
-                    return;
+                        return;
+                    } else {
+                        $errors[] = "Wrong username or password hash.";
+                    }
                 } else {
-                    $errors[] = "Wrong username or password hash.";
+                    $errors[] = "Wrong username or password.";
                 }
+
+                /* close statement */
+                $stmt->close();
+
             } else {
-                $errors[] = "Wrong username or password.";
+                $errors[] = "Something went wrong, please try again.";
             }
-
-            /* close statement */
-            $stmt->close();
-
         } else {
             $errors[] = "Something went wrong, please try again.";
         }
+
+        if (count($errors) > 0) {
+            echo $errors[0];
+        }
     } else {
-        $errors[] = "Something went wrong, please try again.";
+        echo "session doesnt exist";
     }
 
-    if (count($errors) > 0) {
-        echo $errors[0];
-    }
 } else {
     echo "Missing data";
 }
